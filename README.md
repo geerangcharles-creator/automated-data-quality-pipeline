@@ -33,6 +33,30 @@ Ce projet vise à :
 
 Les **colonnes à analyser** et les **colonnes-clés pour les doublons** sont sélectionnées indépendamment : les mesures par colonne respectent le périmètre choisi, tandis que la recherche des doublons porte sur le fichier complet.
 
+
+## Aperçu de l'application
+
+### 1. Tableau de bord général
+
+Vue générale du jeu de données Online Retail avec
+les indicateurs de qualité des données.
+
+![Tableau de bord](assets/screenshots/dashboard.png)
+
+### 2. Contrôle de la qualité des données
+
+Identification des valeurs manquantes et visualisation
+de leur répartition par colonne.
+
+![Contrôles de qualité](assets/screenshots/controles.png)
+
+### 3. Investigation des anomalies
+
+Exploration des valeurs atypiques de la colonne Quantity
+avec la méthode statistique IQR.
+
+![Investigation](assets/screenshots/investigations.png)
+
 ## Technologies utilisées
 
 - **Python** : logique de traitement ;
