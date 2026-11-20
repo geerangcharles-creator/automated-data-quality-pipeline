@@ -1,22 +1,98 @@
-# Automated Data Quality Pipeline — V1
+# Automated Data Quality Pipeline
 
-Application Python de diagnostic de qualité des fichiers **CSV** et **Excel (.xlsx)**. Elle automatise le profilage, les contrôles et les recommandations sans modifier les données d'origine.
+**Application Python d'analyse exploratoire et de diagnostic de la qualité des données — Version 1.4**
 
-## Installation (Windows / PowerShell)
+Automated Data Quality Pipeline permet à un Data Analyst d'importer un fichier CSV ou Excel, de comprendre sa structure, de repérer les anomalies potentielles et de produire un rapport, sans avoir à réécrire les mêmes scripts pour chaque nouveau jeu de données.
 
-```powershell
-cd automated-data-quality-pipeline
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python -m streamlit run app.py
+Le principe de cette version est simple : **détecter, expliquer et documenter les anomalies, sans modifier automatiquement les données originales**.
+
+## Problématique et objectifs
+
+Avant de construire des indicateurs ou des tableaux de bord, un analyste doit s'assurer que ses données sont suffisamment fiables. Les fichiers reçus peuvent contenir des valeurs manquantes, des doublons, des formats incohérents ou des observations inhabituelles. Répéter manuellement ces contrôles prend du temps et augmente le risque d'oubli.
+
+Ce projet vise à :
+
+- automatiser les premières étapes d'exploration d'un dataset ;
+- standardiser les contrôles de qualité sur des fichiers de structures différentes ;
+- permettre une analyse globale ou ciblée sur certaines colonnes ;
+- faciliter l'investigation des lignes suspectes ;
+- fournir des recommandations explicables et des exports réutilisables.
+
+## Fonctionnalités
+
+| Module | Fonctionnalités |
+| --- | --- |
+| Importation | Fichiers `.csv` et `.xlsx`, sélection de feuille Excel, séparateur et encodage CSV |
+| Profilage | Dimensions, types des colonnes, nombres de valeurs uniques, aperçu et statistiques descriptives |
+| Qualité des données | Valeurs manquantes, chaînes vides, doublons complets ou sur colonnes-clés |
+| Qualité avancée | Colonnes constantes ou quasi constantes, formats de dates et d'emails suspects, espaces parasites, variantes de casse, cardinalité élevée, valeurs négatives et zéros |
+| Statistiques | Repérage des valeurs numériques atypiques avec la règle IQR |
+| Investigation | Affichage des lignes atypiques dans leur contexte, tri et export CSV des observations filtrées |
+| Recommandations | Conseils contextualisés, sans suppression ni remplacement automatique |
+| Restitution | Interface Streamlit, graphiques Plotly, rapport HTML et récapitulatif CSV |
+
+Les **colonnes à analyser** et les **colonnes-clés pour les doublons** sont sélectionnées indépendamment : les mesures par colonne respectent le périmètre choisi, tandis que la recherche des doublons porte sur le fichier complet.
+
+## Technologies utilisées
+
+- **Python** : logique de traitement ;
+- **Pandas** : lecture, exploration et contrôle des données ;
+- **OpenPyXL** : lecture des classeurs Excel ;
+- **Streamlit** : interface web locale ;
+- **Plotly** : graphiques interactifs ;
+- **Pytest** : tests automatisés ;
+- **Git / GitHub** : suivi du code et publication.
+
+## Architecture du projet
+
+```text
+automated-data-quality-pipeline/
+├── app.py                       # Interface et orchestration Streamlit
+├── requirements.txt             # Dépendances Python
+├── README.md                    # Documentation
+├── .gitignore                   # Fichiers exclus du suivi Git
+├── data/
+│   └── sample_data.csv          # Données fictives pour la démonstration
+├── reports/                     # Répertoire réservé aux rapports
+├── src/
+│   ├── __init__.py
+│   ├── file_loader.py           # Chargement CSV / Excel
+│   ├── data_profiler.py         # Exploration et statistiques
+│   ├── quality_checker.py       # Détection des anomalies
+│   ├── recommendations.py       # Recommandations
+│   ├── outlier_explorer.py      # Investigation des valeurs atypiques
+│   └── report_generator.py      # Rapports HTML / CSV
+└── tests/
+    ├── test_file_loader.py
+    ├── test_quality_checker.py
+    ├── test_advanced_quality.py
+    └── test_outlier_explorer.py
 ```
 
-Si PowerShell bloque l'activation : `.venv\Scripts\python.exe -m streamlit run app.py` (après installation avec le Python du venv).
+## Installation et lancement
 
-## Installation (Ubuntu)
+### Prérequis
+
+- Python compatible avec les versions indiquées dans `requirements.txt` ;
+- Git (si vous souhaitez cloner le dépôt) ;
+- un navigateur web moderne.
+
+### Windows — PowerShell
+
+```powershell
+git clone https://github.com/geerangcharles-creator/automated-data-quality-pipeline.git
+cd automated-data-quality-pipeline
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+La commande utilise directement le Python de `.venv` : l'activation des scripts PowerShell n'est pas nécessaire.
+
+### Ubuntu / Linux
 
 ```bash
+git clone https://github.com/geerangcharles-creator/automated-data-quality-pipeline.git
 cd automated-data-quality-pipeline
 python3 -m venv .venv
 source .venv/bin/activate
@@ -24,65 +100,84 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Le terminal affiche l'adresse locale (habituellement `http://localhost:8501`). Importer `data/sample_data.csv` pour la première démonstration.
+Ouvrez ensuite l'adresse affichée par Streamlit, généralement **http://localhost:8501**.
 
-## Fonctionnement
+## Guide d'utilisation
 
-1. Importer CSV ou Excel (choisir une feuille pour Excel).
-2. Pour CSV, corriger si nécessaire séparateur et encodage.
-3. Choisir les colonnes de détection des doublons métier.
-4. Lire le profil, les anomalies et les recommandations.
-5. Télécharger le rapport HTML et le récapitulatif CSV.
-6. Dans l'onglet **Investigation**, choisir une colonne numérique atypique, examiner les lignes concernées avec leur contexte et exporter les observations filtrées. Le fichier CSV d'investigation contient les lignes sources et peut inclure des données sensibles.
+1. Importez un fichier CSV ou Excel. Pour Excel, choisissez la feuille ; pour CSV, ajustez au besoin le séparateur ou l'encodage.
+2. Choisissez le mode **Analyse globale** ou **Analyse ciblée**, puis les colonnes concernées.
+3. Définissez séparément les colonnes-clés de détection des doublons.
+4. Consultez le profil, les contrôles généraux et les contrôles de qualité avancés.
+5. Dans **Investigation**, choisissez une colonne numérique présentant des valeurs atypiques, puis examinez les lignes correspondantes avec leurs informations de contexte.
+6. Consultez les recommandations et téléchargez le rapport HTML, le récapitulatif CSV ou, si nécessaire, les lignes atypiques filtrées.
 
-## Structure
+Pour une première utilisation, le fichier fictif `data/sample_data.csv` permet de découvrir toutes les étapes sans utiliser de données confidentielles.
 
-```text
-app.py                         Interface Streamlit et graphiques Plotly
-src/file_loader.py             Lecture CSV/Excel et erreurs explicites
-src/data_profiler.py           Profilage et statistiques
-src/quality_checker.py         Manquants, doublons, chaînes vides, types, IQR
-src/recommendations.py         Conseils contextualisés sans correction
-src/report_generator.py        Exports HTML et CSV
-tests/                        Tests automatisés Pytest
-data/sample_data.csv           Données fictives de démonstration
-```
+## Exemple d'analyse : Online Retail
 
-## Tests
+L'application a été testée avec le jeu de données public **Online Retail**, contenant **541 909 lignes et 8 colonnes**. Les résultats ci-dessous correspondent au fichier brut utilisé lors de notre validation :
+
+| Contrôle | Résultat observé |
+| --- | ---: |
+| Valeurs manquantes — `CustomerID` | 135 080 |
+| Valeurs manquantes — `Description` | 1 454 |
+| Doublons complets supplémentaires | 5 268 |
+| Quantités négatives — `Quantity` | 10 624 |
+| Prix unitaires négatifs — `UnitPrice` | 2 |
+| Prix unitaires nuls — `UnitPrice` | 2 515 |
+| Quantités atypiques selon IQR | 58 619 |
+| Prix atypiques selon IQR | 39 627 |
+
+**Interprétation :** une observation atypique n'est pas forcément une erreur. Une quantité négative peut notamment correspondre à une annulation ou à un mouvement de stock. Les alertes doivent être confrontées aux règles métier avant toute correction.
+
+### Méthode IQR
+
+Pour une colonne numérique, l'écart interquartile est défini par `IQR = Q3 - Q1`. Les valeurs inférieures à `Q1 - 1,5 × IQR` ou supérieures à `Q3 + 1,5 × IQR` sont signalées. Cette méthode est indicative et n'est généralement pas pertinente pour les colonnes d'identifiants.
+
+## Tests et fiabilité
+
+Exécuter :
 
 ```bash
-python -m pytest -q
+python -m pytest -v
 ```
 
-## Interprétation des contrôles
+**Résultat validé sous Windows : 18 tests réussis avec Python 3.13.12 et Pytest 9.2.0.**
 
-- **Manquant** : valeur `NaN`/vide reconnue par Pandas ; la chaîne contenant seulement des espaces figure séparément dans « chaînes vides ».
-- **Doublon supplémentaire** : occurrences répétées après la première, par groupe. « Lignes impliquées » inclut aussi la première occurrence de chaque groupe.
-- **Types suspects** : sur une colonne contenant des chaînes, présence d'un mélange de valeurs convertibles en nombres et non convertibles. Ce contrôle est indicatif.
-- **Valeurs atypiques** : règle IQR (bornes Q1 − 1,5×IQR et Q3 + 1,5×IQR), appliquée seulement à des colonnes numériques avec au moins quatre observations et un IQR non nul.
-- **Colonne constante** : une seule valeur distincte renseignée ; **quasi constante** : une valeur majoritaire au moins à 95 % (minimum 10 valeurs renseignées).
-- **Formats suspects** : contrôle simple des dates et emails lorsque leur nom de colonne le suggère ; formats de dates mélangés ou dates invalides. Les formats de dates ambigus demandent une validation humaine.
-- **Espaces parasites et casse** : espaces en début/fin de chaîne et catégories qui ne diffèrent que par les majuscules/minuscules.
-- **Nombres négatifs et zéros** : comptages indicatifs sur les colonnes numériques, sans considérer ces valeurs automatiquement erronées.
-- **Cardinalité élevée** : au moins 90 % de valeurs distinctes dans une colonne contenant 20 valeurs renseignées ou plus.
-- **Analyse ciblée** : profils et anomalies par colonne pour la sélection ; recherche de doublons indépendante, sur le fichier complet et les clés choisies.
-- **Recommandations** : règles explicites et prudentes, notamment pour identifiants, dates et montants. Aucune suppression, imputation ou conversion n'est appliquée.
+La suite vérifie notamment l'importation, les fichiers vides, les valeurs manquantes, les doublons, les dates et formats suspects, les constantes, l'investigation IQR, les exports et la non-modification des données sources.
 
-## Sécurité, confidentialité et limites
+## Performances — V1.4
 
-- Traitement en mémoire ; les fichiers importés ne sont pas écrits sur disque par le code de l'application. Les paramètres de déploiement Streamlit peuvent avoir leurs propres règles d'hébergement.
-- Ne jamais publier de fichiers confidentiels dans Git. `.gitignore` ignore les données ajoutées et les rapports exportés ; seule la donnée fictive `sample_data.csv` est suivie.
-- Les exports incluent des **statistiques** et des **conseils**, pas les lignes brutes, mais les noms de colonnes et le nom du fichier peuvent eux-mêmes être sensibles.
-- Le contrôle générique ne connaît ni les clés métier réelles, ni les règles comptables, ni les formats de dates propres à l'entreprise.
-- Sur des très gros fichiers, la mémoire et le temps de traitement peuvent être limitants ; pour une V2, prévoir un mode volumétrie et des règles configurables.
-- **Performances V1.4** : le chargement et les résultats de contrôle sont conservés pendant la session Streamlit, et les doublons sont calculés indépendamment. Changer un filtre d'affichage ne relance plus l'intégralité de l'analyse. La première importation Excel reste potentiellement longue et les résultats en mémoire occupent de la RAM ; un nouveau chargement de fichier invalide le cache de session.
-- CSV : détection automatique du séparateur indicative ; choisir explicitement le séparateur en cas de doute. Certains encodages mono-octet peuvent masquer des erreurs d'encodage.
-- Excel : `.xlsx` uniquement ; formules lues selon les valeurs mises en cache par le classeur.
+Pour limiter les ralentissements sur les fichiers volumineux, l'application :
 
-## Évolutions possibles
+- réutilise le fichier chargé pendant la session Streamlit ;
+- conserve les diagnostics déjà calculés tant que les paramètres correspondants ne changent pas ;
+- sépare le calcul des doublons des autres contrôles ;
+- limite le nombre de lignes affichées dans l'aperçu d'investigation ;
+- affiche les durées de chargement et de traitement.
 
-V2 : nettoyage interactif, prévisualisation avant/après et journal des validations. V3 : contrôles statistiques plus avancés. V4 : traitement par lots et historique, selon besoin métier.
+Le premier chargement d'un classeur Excel volumineux reste plus coûteux qu'un changement de filtre. La mémoire utilisée dépend de la taille des données et du nombre de résultats conservés dans la session.
 
-## GitHub
+## Confidentialité et limites
 
-Avant un premier `git push`, vérifier avec `git status` et `git diff --cached --name-only` qu'aucune donnée réelle ou secret ne figure dans l'index. Le projet est livré sans dépôt distant configuré.
+- L'application n'applique **aucun nettoyage automatique** et n'écrase pas les fichiers importés.
+- Les rapports HTML et CSV de synthèse contiennent principalement des statistiques, des noms de colonnes et des recommandations.
+- **L'export CSV de l'onglet Investigation contient les lignes filtrées du dataset** : il peut inclure des identifiants ou des informations sensibles. Ne le publiez pas sans vérification.
+- Les formats suspects sont détectés avec des règles génériques ; les formats spécifiques à une entreprise nécessitent des contrôles métier complémentaires.
+- Les valeurs nulles, négatives, constantes ou atypiques sont des signaux d'analyse, pas des erreurs certaines.
+- L'interface utilise des tableaux HTML pour rester compatible avec l'environnement Windows testé sans PyArrow ; sur des jeux de données volumineux, l'affichage reste volontairement limité.
+- Le dossier `data/` est exclu du suivi Git, sauf `sample_data.csv`. Les autres fichiers et rapports réels ne doivent pas être ajoutés au dépôt public.
+
+## Perspectives
+
+- **V2** : nettoyage interactif avec confirmation, journal des modifications et comparaison avant/après ;
+- **V3** : contrôles métier configurables et détection avancée des anomalies ;
+- **V4** : analyse de plusieurs fichiers, historique et suivi de qualité dans le temps.
+
+## Auteur
+
+Projet personnel de Data Analyst, développé et documenté par **[geerangcharles-creator](https://github.com/geerangcharles-creator)**.
+
+---
+
+**Statut :** V1.4 publiée — diagnostic automatisé, investigation et restitution opérationnels.
