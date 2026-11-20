@@ -1,0 +1,9 @@
+client_id,age,montant,date_achat,ville
+101,25,100.5,2026-10-01,Kinshasa
+102,30,200,2026-10-02,Matadi
+103,,300,2026-10-03,Kinshasa
+103,,300,2026-10-03,Kinshasa
+104,42,10000,2026-10-04, 
+105,29,,2026-10-05,Lubumbashi
+106,inconnu,150,2026-10-06,Goma
+107,35,180,2026-10-07,Kinshasa
